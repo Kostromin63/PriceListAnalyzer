@@ -47,13 +47,17 @@ class PriceMachine:
             headers.append(numbers_column)
 
         frames = []
-        for data in headers:
-            df = pd.read_csv(data[0], header=None, usecols=data[1:4]) # pd.read_csv(data[0], usecols=data[1:4])
+        for head in headers:
+            #df = pd.read_csv(head[0], header=None, index_col=head[1:4]) #) # pd.read_csv(data[0], usecols=data[1:4])
+            #df = pd.read_csv(head[0], usecols=head[1:4])
+            df = pd.read_csv(head[0], header= 1, index_col=head[1:4])
+            #df_reordered = df[0:3]
+            #df = pd.read_csv(head[0], header=1, data={'Наименование':head[1], 'Цена':head[2], 'Вес':head[3]})
             frames.append(df)
 
-        # self.new_df = pd.concat(frames)
-        for fr in frames:
-            print(fr)
+        print(pd.concat(frames, axis=1, ignore_index=True))
+        # for fr in frames:
+        #     print(fr)
 
         return self.new_df
 
@@ -76,19 +80,6 @@ class PriceMachine:
                 else:
                     ind_ins = 2
                 new_numbers_column[ind_ins] = column_counter - 1
-
-        # column_counter = 0
-        # for i in headers:
-        #     column_counter += 1
-        #     if i in valid_column_names:
-        #         ind = valid_column_names.index(i)
-        #         if ind < 4:
-        #             ind_ins = 1
-        #         elif ind > 5:
-        #             ind_ins = 3
-        #         else:
-        #             ind_ins = 2
-        #         new_numbers_column[ind_ins] = i
 
 
         return new_numbers_column
@@ -121,14 +112,14 @@ if __name__ == "__main__":
     pm = PriceMachine()
     print(pm.load_prices(os.getcwd()))
 
-    while True:
-        text = input('Введите часть названия товара:')
-        if text == 'exit':
-            break
-        else:
-            pass
-
-
-    print('the end')
-    print(pm.export_to_html())
+    # while True:
+    #     text = input('Введите часть названия товара:')
+    #     if text == 'exit':
+    #         break
+    #     else:
+    #         pass
+    #
+    #
+    # print('the end')
+    # print(pm.export_to_html())
 
