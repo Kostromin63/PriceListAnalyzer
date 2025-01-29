@@ -15,7 +15,7 @@ class PriceMachine:
         self.result = ''
         self.name_length = 0
         self.result_columns = ['№', 'Наименование', 'цена', 'вес', 'файл', 'цена за кг']
-        self.new_df = pd.DataFrame(columns=[1, 2, 3])
+        self.new_df = pd.DataFrame(columns=['Наименование', 'цена', 'вес'])
 
     def load_prices(self, file_path=''):
         '''
@@ -46,18 +46,25 @@ class PriceMachine:
             numbers_column = self._search_product_price_weight(list_columns_file, file)
             headers.append(numbers_column)
 
-        frames = []
+        frames = [self.new_df]
         for head in headers:
             #df = pd.read_csv(head[0], header=None, index_col=head[1:4]) #) # pd.read_csv(data[0], usecols=data[1:4])
             #df = pd.read_csv(head[0], usecols=head[1:4])
-            df = pd.read_csv(head[0], header= 1, index_col=head[1:4])
+            #df = pd.DataFrame({'Наименование':[], 'цена':[], 'вес':[]})
+            df = pd.read_csv(head[0], header= 0, index_col=head[1:4])
+            #df = pd.concat([df, df1], axis=1, ignore_index=True)
+            #df.columns = ['Наименование']
+            #df = df.rename(columns={'0': '1', '1': '2', '2': '3'}
+            # df = df(usecols=['Наименование', 'цена', 'вес'])
+            df = df.get([], default="default_value")
+
             #df_reordered = df[0:3]
             #df = pd.read_csv(head[0], header=1, data={'Наименование':head[1], 'Цена':head[2], 'Вес':head[3]})
             frames.append(df)
+            print(df)
 
-        print(pd.concat(frames, axis=1, ignore_index=True))
-        # for fr in frames:
-        #     print(fr)
+        self.new_df = pd.concat(frames, axis=1, ignore_index=True)
+        print(self.new_df )
 
         return self.new_df
 
@@ -84,7 +91,6 @@ class PriceMachine:
 
         return new_numbers_column
 
-
     def export_to_html(self, fname='output.html'):
         result = '''
         <!DOCTYPE html>
@@ -105,21 +111,25 @@ class PriceMachine:
         '''
     
     def find_text(self, text):
-        pass
+
+        filtered_df = self.new_df[self.new_df['Наименование'].str.contains(text)]
+
+        print(filtered_df)
+
 
 
 if __name__ == "__main__":
     pm = PriceMachine()
     print(pm.load_prices(os.getcwd()))
 
-    # while True:
-    #     text = input('Введите часть названия товара:')
-    #     if text == 'exit':
-    #         break
-    #     else:
-    #         pass
-    #
-    #
-    # print('the end')
-    # print(pm.export_to_html())
+    while True:
+        text = input('Введите часть названия товара:')
+        if text == 'exit':
+            break
+        else:
+            pm.find_text(text)
+
+
+    print('the end')
+    print(pm.export_to_html())
 
