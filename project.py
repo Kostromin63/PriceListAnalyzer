@@ -43,70 +43,77 @@ class PriceMachine:
             # читаем только заголовки
             list_columns_file = pd.read_csv(file).columns.to_list()
             # Из заголовков выбираем индексы только необходимых нам колонок
-            numbers_column = self._search_product_price_weight(list_columns_file, file)
+            numbers_column = self._search_product_price_weight(list_columns_file)
+            # в конец списка добавляем имя файла
+            numbers_column.append(file)
             headers.append(numbers_column)
 
         frames = [self.new_df]
         for head in headers:
-            #df = pd.read_csv(head[0], header=None, index_col=head[1:4]) #) # pd.read_csv(data[0], usecols=data[1:4])
-            df = pd.read_csv(head[0], header=0, index_col=False, usecols=head[1:4], keep_default_na=False, na_filter=False) #names=['№', 'Наименование', 'цена', 'вес', 'файл', 'цена за кг'],
-            #df = pd.DataFrame(head[0], columns={'Наименование':[head[1]], 'цена':[head[2]], 'вес':[head[3]]})
-            #df = pd.read_csv(head[0], header=None , index_col=head[1:4], keep_default_na=False)
-            # ax = df.axes
-            # b = ax[0].values
-            # b = b[0]
-            # ind1 = b[0]
-            # ind2 = str(b[1])
-            # ind3 = str(b[2])
-            col1 = df['наименование']
 
-            #df = pd.read_csv(head[0], index_col=head[1:4])
+            df = self.new_df
+            r_df = pd.read_csv(head[3], header=0, index_col=False, usecols=head[:3],
+                             keep_default_na=False, na_filter=False)
 
+            ax = r_df.axes
+            cols_in_r_df = ax[1].values
+            #r_df = df.get([cols_in_r_df], default="default_value")
+            indx_column = self._search_product_price_weight(cols_in_r_df)
+            dict_columns_r_df = dict(zip(indx_column, cols_in_r_df))
+
+            r_df.rename(columns={dict_columns_r_df.get(0): self.result_columns[1],
+                                 dict_columns_r_df.get(1): self.result_columns[2],
+                                 dict_columns_r_df.get(2): self.result_columns[3]})
+            #r_df.rename(columns={'название' : 'Yfbsjadk'})
+
+            r_df['файл'] = head[0]
+            df = pd.concat([df, r_df], axis=1, ignore_index=True)
+
+            b = 6
+
+
+            #df.rename(columns={"A": "a", "B": "c"})
             #df = pd.concat([df, df1], axis=1, ignore_index=True)
             #df.columns = ['Наименование']
-            #df = df.rename(columns={'0': '1', '1': '2', '2': '3'}
             # df = df(usecols=['Наименование', 'цена', 'вес'])
             #df = df.get([])
             #ax = df.axes
-            df['файл'] = head[0]
+
             #df['цена за кг'] = df['цена'] / df['вес']
             # col = df.get([0], default="default_value")
-            # a = df[0]
-            # b = df[1]
-            # c = df[2]
-            # d = df[3]
+
 
 
             #df_reordered = df[0:3]
-            frames.append(df)
+            #frames.append(df)
             #print(df)
 
-        new_df = pd.concat(frames, axis=0, ignore_index=True)
+        #new_df = pd.concat(frames, axis=0, ignore_index=True)
         # new_df['цена за кг'] = new_df['цена'] / new_df['вес']
 #        new_df['№'] = df.index
-        self.new_df = new_df
+        self.new_df = df
         #print(self.new_df )
 
         return self.new_df
 
-    def _search_product_price_weight(self, headers, file):
+    def _search_product_price_weight(self, headers):
         '''
             Возвращает номера столбцов
         '''
         valid_column_names = ['товар', 'название', 'наименование', 'продукт', 'розница', 'цена', 'вес', 'масса',
                               'фасовка']
-        new_numbers_column = [file, None, None, None]
+        new_numbers_column = [None, None, None]
         column_counter = 0
         for i in headers:
             column_counter += 1
             if i in valid_column_names:
                 ind = valid_column_names.index(i)
                 if ind < 4:
-                    ind_ins = 1
+                    ind_ins = 0
                 elif ind > 5:
-                    ind_ins = 3
-                else:
                     ind_ins = 2
+                else:
+                    ind_ins = 1
                 new_numbers_column[ind_ins] = column_counter - 1
 
 
@@ -126,11 +133,11 @@ class PriceMachine:
         html_file.write(result)
         html_file.close()
         self.result = result
-        # return result
+        return result
     
     def find_text(self, text):
 
-        nomenclatures = self.new_df[self.new_df[''].str.contains(text)]
+        nomenclatures = self.new_df[self.new_df[6].str.contains(text)]
 
         print(nomenclatures)
 
