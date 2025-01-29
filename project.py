@@ -2,6 +2,7 @@ import os
 import json
 from types import new_class
 
+import numpy as np
 import pandas as pd
 import glob
 import re
@@ -82,34 +83,19 @@ class PriceMachine:
 
             product_price = r_df[col2_from_df]
             weight = r_df[col3_from_df]
-            # if weight > 0:
+
             price_kg = product_price // weight
-            # else:
-            # price_kg = price_kg#r_df[dict_columns_r_df.get(1)]//r_df[dict_columns_r_df.get(2)]
-            r_df['цена за кг'] = price_kg     #r_df[dict_columns_r_df.get(1)]//r_df[dict_columns_r_df.get(2)]
+
+            r_df['цена за кг'] = price_kg
             r_df['файл'] = head[3]
 
             cleaned_df = r_df.dropna(axis=1)
             df = pd.concat([df, r_df], axis=0, ignore_index=True)
             self.new_df = df
 
-            #df.rename(columns={"A": "a", "B": "c"})
-            #df = pd.concat([df, df1], axis=1, ignore_index=True)
-            #df = df.get([])
-            #ax = df.axes
-
-            #df['цена за кг'] = df['цена'] / df['вес']
-            # col = df.get([0], default="default_value")
-
-            #df_reordered = df[0:3]
-            #frames.append(df)
-            #print(df)
-
-        #new_df = pd.concat(frames, axis=0, ignore_index=True)
-        # new_df['цена за кг'] = new_df['цена'] / new_df['вес']
-#        new_df['№'] = df.index
-#         self.new_df = df
-        #print(self.new_df )
+        # new_df = self.new_df
+        # new_df['№'].apply(lambda x: pd.Series(np.arange(len(x)), x.index))
+        #self.apply(lambda x: pd.Series(np.arange(len(x)), x.index))
 
         return self.new_df
 
@@ -154,11 +140,13 @@ class PriceMachine:
     
     def find_text(self, text):
 
-        nomenclatures = self.new_df[self.new_df[6].str.contains(text)]
+        nomenclatures = self.new_df[self.new_df['Наименование'].str.contains(text)]
+        nomenclatures.sort_values(by=['цена за кг'], ignore_index=True)
+
+
+        a = 4
 
         print(nomenclatures)
-
-
 
 if __name__ == "__main__":
     pm = PriceMachine()
@@ -170,7 +158,6 @@ if __name__ == "__main__":
             break
         else:
             pm.find_text(text)
-
 
     print('the end')
     print(pm.export_to_html())
