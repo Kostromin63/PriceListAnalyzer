@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import glob
 import re
-
+pd.options.mode.copy_on_write = True
 from pandas.io.formats.format import return_docstring
 
 class PriceMachine:
@@ -141,10 +141,7 @@ class PriceMachine:
     def find_text(self, text):
 
         nomenclatures = self.new_df[self.new_df['Наименование'].str.contains(text)]
-        nomenclatures.sort_values(by=['цена за кг'], ignore_index=True)
-
-
-        a = 4
+        nomenclatures.sort_values(by=['цена за кг'], ignore_index=True, inplace=True)
 
         print(nomenclatures)
 
