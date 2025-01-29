@@ -61,10 +61,10 @@ class PriceMachine:
             #df_reordered = df[0:3]
             #df = pd.read_csv(head[0], header=1, data={'Наименование':head[1], 'Цена':head[2], 'Вес':head[3]})
             frames.append(df)
-            print(df)
+            #print(df)
 
         self.new_df = pd.concat(frames, axis=1, ignore_index=True)
-        print(self.new_df )
+        #print(self.new_df )
 
         return self.new_df
 
@@ -99,16 +99,12 @@ class PriceMachine:
             <title>Позиции продуктов</title>
         </head>
         <body>
-            <table>
-                <tr>
-                    <th>Номер</th>
-                    <th>Название</th>
-                    <th>Цена</th>
-                    <th>Фасовка</th>
-                    <th>Файл</th>
-                    <th>Цена за кг.</th>
-                </tr>
         '''
+        result = result + '\t'+'\t'+'\t'+'\t' + self.new_df.to_html() + '\n'+'</body>'
+        html_file = open(fname, "w+", encoding='utf-8')
+        html_file.write(result)
+        html_file.close()
+        return result
     
     def find_text(self, text):
 
