@@ -48,41 +48,58 @@ class PriceMachine:
             numbers_column.append(file)
             headers.append(numbers_column)
 
-        frames = [self.new_df]
+        #frames = [self.new_df]
         for head in headers:
 
             df = self.new_df
             r_df = pd.read_csv(head[3], header=0, index_col=False, usecols=head[:3],
                              keep_default_na=False, na_filter=False)
 
+            # Удалим пустые колонки и строки если есть
+            cleaned_col = r_df.dropna(axis=1)
+            cleaned_str = r_df.dropna(axis=0)
+
+            # получаем список прочитаных колонок как в файле
             ax = r_df.axes
             cols_in_r_df = ax[1].values
-            #r_df = df.get([cols_in_r_df], default="default_value")
+            # формируем словарь для правильной сортировки колонок для переименования нужных нам 3-х колонок
             indx_column = self._search_product_price_weight(cols_in_r_df)
             dict_columns_r_df = dict(zip(indx_column, cols_in_r_df))
 
-            r_df.rename(columns={dict_columns_r_df.get(0): self.result_columns[1],
-                                 dict_columns_r_df.get(1): self.result_columns[2],
-                                 dict_columns_r_df.get(2): self.result_columns[3]})
-            #r_df.rename(columns={'название' : 'Yfbsjadk'})
+            col1_from_f = dict_columns_r_df.get(0)
+            col2_from_f = dict_columns_r_df.get(1)
+            col3_from_f = dict_columns_r_df.get(2)
 
-            r_df['файл'] = head[0]
-            df = pd.concat([df, r_df], axis=1, ignore_index=True)
+            col1_from_df = self.result_columns[1]
+            col2_from_df = self.result_columns[2]
+            col3_from_df = self.result_columns[3]
 
-            b = 6
 
+
+            r_df.rename({col1_from_f : col1_from_df,
+                                 col2_from_f : col2_from_df,
+                                 col3_from_f : col3_from_df}, axis=1, errors="ignore", inplace=True)
+
+            product_price = r_df[col2_from_df]
+            weight = r_df[col3_from_df]
+            # if weight > 0:
+            price_kg = product_price // weight
+            # else:
+            # price_kg = price_kg#r_df[dict_columns_r_df.get(1)]//r_df[dict_columns_r_df.get(2)]
+            r_df['цена за кг'] = price_kg     #r_df[dict_columns_r_df.get(1)]//r_df[dict_columns_r_df.get(2)]
+            r_df['файл'] = head[3]
+
+            cleaned_df = r_df.dropna(axis=1)
+            df = pd.concat([df, r_df], axis=0, ignore_index=True)
+            self.new_df = df
 
             #df.rename(columns={"A": "a", "B": "c"})
             #df = pd.concat([df, df1], axis=1, ignore_index=True)
-            #df.columns = ['Наименование']
-            # df = df(usecols=['Наименование', 'цена', 'вес'])
             #df = df.get([])
             #ax = df.axes
 
             #df['цена за кг'] = df['цена'] / df['вес']
             # col = df.get([0], default="default_value")
-
-
 
             #df_reordered = df[0:3]
             #frames.append(df)
@@ -91,7 +108,7 @@ class PriceMachine:
         #new_df = pd.concat(frames, axis=0, ignore_index=True)
         # new_df['цена за кг'] = new_df['цена'] / new_df['вес']
 #        new_df['№'] = df.index
-        self.new_df = df
+#         self.new_df = df
         #print(self.new_df )
 
         return self.new_df
