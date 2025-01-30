@@ -93,8 +93,9 @@ class PriceMachine:
             df = pd.concat([df, r_df], axis=0, ignore_index=True)
             self.new_df = df
 
-        # new_df = self.new_df
-        # new_df['№'].apply(lambda x: pd.Series(np.arange(len(x)), x.index))
+        new_df = self.new_df
+        new_df['№'] = pd.Series(np.arange(1,len(new_df.index)+1))
+        # new_df['№'].apply(lambda x: pd.Series(np.arange(len(int(x))), x.index))
         #self.apply(lambda x: pd.Series(np.arange(len(x)), x.index))
 
         return self.new_df
@@ -140,9 +141,11 @@ class PriceMachine:
     
     def find_text(self, text):
 
-        nomenclatures = self.new_df[self.new_df['Наименование'].str.contains(text)]
+        nomenclatures = self.new_df[self.new_df['Наименование'].str.contains(text, case=False)]
         nomenclatures.sort_values(by=['цена за кг'], ignore_index=True, inplace=True)
+        nomenclatures['№'] = pd.Series(np.arange(1, len(nomenclatures.index) + 1))
 
+        # print(nomenclatures.style.hide_index())
         print(nomenclatures)
 
 if __name__ == "__main__":
