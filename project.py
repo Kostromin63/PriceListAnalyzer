@@ -1,13 +1,12 @@
 import os
-import json
-from types import new_class
 
 import numpy as np
 import pandas as pd
-import glob
-import re
+
+from tabulate import tabulate
+
 pd.options.mode.copy_on_write = True
-from pandas.io.formats.format import return_docstring
+
 
 class PriceMachine:
     
@@ -139,25 +138,26 @@ class PriceMachine:
         self.result = result
         return result
     
-    def find_text(self, text):
+    def find_text(self, search_text):
 
-        nomenclatures = self.new_df[self.new_df['Наименование'].str.contains(text, case=False)]
+        nomenclatures = self.new_df[self.new_df['Наименование'].str.contains(search_text, case=False)]
         nomenclatures.sort_values(by=['цена за кг'], ignore_index=True, inplace=True)
         nomenclatures['№'] = pd.Series(np.arange(1, len(nomenclatures.index) + 1))
 
-        # print(nomenclatures.style.hide_index())
-        print(nomenclatures)
+        print(tabulate(nomenclatures, headers='keys', tablefmt='psql', showindex=False))
+        # print(tabulate(nomenclatures, headers='keys', tablefmt='psql', showindex=False))
+        # print(nomenclatures)
 
 if __name__ == "__main__":
     pm = PriceMachine()
     print(pm.load_prices(os.getcwd()))
 
     while True:
-        text = input('Введите часть названия товара:')
-        if text == 'exit':
+        search_text = input('Введите часть названия товара:')
+        if search_text == 'exit':
             break
         else:
-            pm.find_text(text)
+            pm.find_text(search_text)
 
     print('the end')
     print(pm.export_to_html())
